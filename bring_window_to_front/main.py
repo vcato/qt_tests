@@ -1,51 +1,65 @@
+""" test bringing a window to the front """
 import sys
-from sys import stderr
 from PyQt4.QtGui import QApplication, QWidget, QPushButton
-from PyQt4.QtGui import QHBoxLayout, QVBoxLayout
+from PyQt4.QtGui import QVBoxLayout
 from PyQt4.QtGui import QMainWindow, QDialog
 from PyQt4.QtCore import Qt
 
 
-def showWindow(window):
-  window.show()
-  new_state = (window.windowState() & ~Qt.WindowMinimized) | Qt.WindowActive
-  window.setWindowState(new_state)
-  window.activateWindow()
+def _show_window(window):
+    window.show()
+    new_state = (window.windowState() & ~Qt.WindowMinimized) | Qt.WindowActive
+    window.setWindowState(new_state)
+    window.activateWindow()
 
 
-class Application(QApplication):
-  def __init__(self,argv):
-    QApplication.__init__(self,argv)
+def _create_window(title):
+    window = QDialog()
+    window.setWindowTitle(title)
+    return window
 
-  def create(self):
-    main_window = QMainWindow()
-    self.main_window = main_window
-    self.window1 = QDialog()
-    self.window1.setWindowTitle('Window 1')
-    self.window2 = QDialog()
-    self.window2.setWindowTitle('Window 2')
-    main_window.setWindowTitle('Bring To Front Test')
+def _create_window_button(layout, text, callback):
+    window_button = QPushButton(text)
+    layout.addWidget(window_button)
+    window_button.clicked.connect(callback)
+    return window_button
+
+def _create_central_widget(main_window):
     central_widget = QWidget()
-    layout = QVBoxLayout()
-    window1_button = QPushButton('Window1')
-    window2_button = QPushButton('Window2')
-    layout.addWidget(window1_button)
-    layout.addWidget(window2_button)
-    window1_button.clicked.connect(self.openWindow1)
-    window2_button.clicked.connect(self.openWindow2)
-    central_widget.setLayout(layout)
     main_window.setCentralWidget(central_widget)
-    main_window.show()
+    return central_widget
 
-  def openWindow1(self):
-    showWindow(self.window1)
+def _create_vbox_layout(widget):
+    layout = QVBoxLayout()
+    widget.setLayout(layout)
+    return layout
 
-  def openWindow2(self):
-    showWindow(self.window2)
+class _Application(QApplication): # pylint: disable=too-few-public-methods
+    def __init__(self, argv):
+        QApplication.__init__(self, argv)
 
-def main(argv):
-  app = Application(argv)
-  app.create()
-  app.exec_()
+        main_window = QMainWindow()
+        self.main_window = main_window
+        main_window.setWindowTitle('Bring To Front Test')
+        central_widget = _create_central_widget(main_window)
+        layout = _create_vbox_layout(central_widget)
 
-main(sys.argv)
+        self._window1 = _create_window('Window 1')
+        self._window2 = _create_window('Window 2')
+
+        _create_window_button(layout, 'Window1', self._open_window_1)
+        _create_window_button(layout, 'Window2', self._open_window_2)
+
+        main_window.show()
+
+    def _open_window_1(self):
+        _show_window(self._window1)
+
+    def _open_window_2(self):
+        _show_window(self._window2)
+
+def _main(argv):
+    app = _Application(argv)
+    app.exec_()
+
+_main(sys.argv)
