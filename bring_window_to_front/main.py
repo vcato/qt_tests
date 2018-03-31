@@ -18,21 +18,25 @@ def _create_window(title):
     window.setWindowTitle(title)
     return window
 
+
 def _create_window_button(layout, text, callback):
     window_button = QPushButton(text)
     layout.addWidget(window_button)
     window_button.clicked.connect(callback)
     return window_button
 
+
 def _create_central_widget(main_window):
     central_widget = QWidget()
     main_window.setCentralWidget(central_widget)
     return central_widget
 
+
 def _create_vbox_layout(widget):
     layout = QVBoxLayout()
     widget.setLayout(layout)
     return layout
+
 
 class _Application(QApplication): # pylint: disable=too-few-public-methods
     def __init__(self, argv):
@@ -58,8 +62,10 @@ class _Application(QApplication): # pylint: disable=too-few-public-methods
     def _open_window_2(self):
         _show_window(self._window2)
 
+
 def _main(argv):
     app = _Application(argv)
     app.exec_()
+
 
 _main(sys.argv)
